@@ -1,6 +1,6 @@
 # DaftAPI
 
-Package to use Daft.ie API easily from any PHP project.
+Package to use [Daft.ie](http://daft.ie) API easily from any PHP project.
 
 ## Install
 

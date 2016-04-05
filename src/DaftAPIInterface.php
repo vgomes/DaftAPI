@@ -4,13 +4,13 @@ namespace vgomes\DaftAPI;
 
 interface DaftAPIInterface
 {
-    public function sale($id = null);
-    public function rental($id = null);
-    public function commercial($id = null);
-    public function development($id = null);
-    public function short_term($id = null);
-    public function sharing($id = null);
-    public function parking($id = null);
+    public function sale(array $params);
+    public function rental(array $params);
+    public function commercial(array $params);
+    public function development(array $params);
+    public function short_term(array $params);
+    public function sharing(array $params);
+    public function parking(array $params);
     public function areas();
     public function media($id, $type);
     public function ad_types();

@@ -16,6 +16,10 @@ class DaftAPI implements DaftAPIInterface
     const COMMERCIAL = 'commercial';
     const SHORTTERM  = 'shortterm';
 
+    const AGREED_NO   = 0;
+    const AGREED_ONLY = 1;
+    const AGREED_BOTH = 2;
+
     function __construct($api_key)
     {
         $this->api_key = $api_key;
@@ -232,73 +236,60 @@ class DaftAPI implements DaftAPIInterface
     }
 
 
-    public function sale($id = null)
+    public function sale(array $params = null)
     {
-        $this->query['ad_ids'] = $id;
-
         return $this->daftAPI->search_sale([
             'api_key' => $this->api_key,
-            'query'   => $this->query
+            'query'   => $params,
         ]);
     }
 
-    public function rental($id = null)
+    public function rental(array $params = null)
     {
-        $this->query['ad_ids'] = $id;
-
         return $this->daftAPI->search_rental([
             'api_key' => $this->api_key,
-            'query'   => $this->query
+            'query'   => $params
         ]);
     }
 
-    public function commercial($id = null)
+    public function commercial(array $params = null)
     {
-        $this->query['ad_ids'] = $id;
-
         return $this->daftAPI->search_commercial([
             'api_key' => $this->api_key,
-            'query'   => $this->query
+            'query'   => $params
         ]);
     }
 
-    public function development($id = null)
+    public function development(array $params = null)
     {
-        $this->query['ad_ids'] = $id;
-
         return $this->daftAPI->search_development([
             'api_key' => $this->api_key,
-            'query'   => $this->query
+            'query'   => $params
         ]);
     }
 
-    public function short_term($id = null)
+    public function short_term(array $params = null)
     {
-        $this->query['ad_ids'] = $id;
-
         return $this->daftAPI->search_shortterm([
             'api_key' => $this->api_key,
-            'query'   => $this->query
+            'query'   => $params
         ]);
     }
 
-    public function sharing($id = null)
+    public function sharing(array $params = null)
     {
-        $this->query['ad_ids'] = $id;
 
         return $this->daftAPI->search_sharing([
             'api_key' => $this->api_key,
-            'query'   => $this->query
+            'query'   => $params
         ]);// TODO: Implement sharing() method.
     }
 
-    public function parking($id = null)
+    public function parking(array $params = null)
     {
-        $this->query['ad_ids'] = $id;
-
         return $this->daftAPI->search_parking([
             'api_key' => $this->api_key,
-            'query'   => $this->query
+            'query'   => $params
         ]);
     }
 

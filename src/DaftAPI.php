@@ -1,6 +1,6 @@
 <?php
 
-namespace vgomes\DaftAPI;
+namespace vgomes;
 
 class DaftAPI implements DaftAPIInterface
 {

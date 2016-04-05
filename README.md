@@ -7,7 +7,7 @@ Package to use [Daft.ie](http://daft.ie) API easily from any PHP project.
 Via Composer
 
 ``` bash
-$ composer require :vendor/:package_name
+$ composer require vgomes/daftapi
 ```
 
 ## Usage

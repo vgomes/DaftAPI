@@ -196,24 +196,13 @@ class DaftAPI implements DaftAPIInterface
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * Returns info from the ad of the given url. It should work from any daft.ie url.
+     * $images param controls if returned ad should include property media or not.
+     * @param           $url
+     * @param bool|true $images
+     * @return mixed
+     */
     public function getByUrl($url, $images = true)
     {
         // get short URL
@@ -227,10 +216,11 @@ class DaftAPI implements DaftAPIInterface
     }
 
     /**
+     * Converts any daft.ie url to its shortened link format.
      * @param $url
      * @return string
      */
-    public function getDaftUniqueUrl($url)
+    private function getDaftUniqueUrl($url)
     {
         $ad_id = $this->getDaftUniqueId($url);
 
@@ -238,11 +228,11 @@ class DaftAPI implements DaftAPIInterface
     }
 
     /**
-     * Returns daft unique short id for any daft.ie, property.ie or rent.ie urls
+     * Returns daft unique ad_id and appended type digit. Used to build shortened daft urls.
      * @param $url
      * @return int
      */
-    public function getDaftUniqueId($url)
+    private function getDaftUniqueId($url)
     {
         $parsed = parse_url($url);
         $host = str_replace('www.', '', $parsed['host']);
@@ -351,6 +341,11 @@ class DaftAPI implements DaftAPIInterface
         return $ad_id;
     }
 
+    /**
+     * Gets the type numeric type id to use in shortened urls.
+     * @param $url
+     * @return null|string
+     */
     public function getTypeFromUrl($url)
     {
         $id = $this->getDaftUniqueId($url);
@@ -386,8 +381,17 @@ class DaftAPI implements DaftAPIInterface
         return $type;
     }
 
+    /**
+     * Get an idividual ad given it's ad_id and type. $images param controls if property media should be included or not.
+     * @param           $id
+     * @param           $type
+     * @param bool|true $images
+     * @return mixed|null
+     */
     public function getById($id, $type, $images = true)
     {
+        $property = null;
+
         switch ($type) {
             case (self::SALE) :
                 $property = $this->sale($id);

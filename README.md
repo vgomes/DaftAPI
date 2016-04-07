@@ -12,9 +12,11 @@ $ composer require vgomes/daftapi
 
 ## Usage
 
+In order to use this, you'll need a Daft api key. Get in touch with them in order to get one.
+
 ``` php
-$skeleton = new League\Skeleton();
-echo $skeleton->echoPhrase('Hello, League!');
+$api = new DaftAPI('your_api_key_here');
+$propsForSale = $api->sale();
 ```
 
 ## Change log

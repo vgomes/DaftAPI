@@ -21,8 +21,8 @@ $propsForSale = $api->sale();
 
 ## Documentation
 
-Check oficial [Daft.ie API docs][http://api.daft.ie/doc/v3] to get information on what parameters you can use on requests and the type of results you can get.
-You can also check [some code examples][http://api.daft.ie/examples/php5/].
+Check oficial [Daft.ie API docs](http://api.daft.ie/doc/v3) to get information on what parameters you can use on requests and the type of results you can get.
+You can also check [some code examples](http://api.daft.ie/examples/php5/).
 
 ## Change log
 
@@ -34,8 +34,7 @@ If you discover any security related issues, please email victor.j.gomes@gmail.c
 
 ## Credits
 
-- [Victor Gomes][https://github.com/vgomes]
-- [All Contributors][link-contributors]
+- [Victor Gomes](https://github.com/vgomes)
 
 ## License
 

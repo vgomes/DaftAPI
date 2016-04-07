@@ -19,6 +19,11 @@ $api = new DaftAPI('your_api_key_here');
 $propsForSale = $api->sale();
 ```
 
+## Documentation
+
+Check oficial [Daft.ie API docs][http://api.daft.ie/doc/v3] to get information on what parameters you can use on requests and the type of results you can get.
+You can also check [some code examples][http://api.daft.ie/examples/php5/].
+
 ## Change log
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.

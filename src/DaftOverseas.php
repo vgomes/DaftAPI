@@ -40,6 +40,8 @@ class DaftOverseas implements DaftOverseasInterface
     const VENEZUELA          = 130;
     const WALES              = 192;
 
+    const EURO_SYMBOL = "\xE2\x82\xAc"; // avoid weird issue with € character
+
     protected $key;
     protected $query;
     protected $client;
@@ -56,7 +58,7 @@ class DaftOverseas implements DaftOverseasInterface
             'sort_by'   => 'date',
             'sort_type' => 'd',
             'offset'    => 0,
-            'limit'     => 20
+            'limit'     => 30
         ];
     }
 
@@ -65,17 +67,69 @@ class DaftOverseas implements DaftOverseasInterface
         $this->query = $this->prepareQuery($params);
         $crawler = $this->client->request('GET', $this->query);
 
-        $info = $crawler->filter('div#listings_summary')->text();
+        $info = $crawler->filter('div#listings_summary');
 
         $answer = new \stdClass();
         $answer->results = new \stdClass();
         $answer->results->pagination = $this->getPaginationInfo($info);
 
-        $crawler->filter('div.listing')->each(function (Crawler $node) {
-            $node->filter('h1')->each(function (Crawler $node) {
-//                var_dump(trim($node->text()));
-            });
+        $ads = [];
+        var_dump($this->query);
+        // get list of ads
+        $crawler->filter('div.listing')->each(function (Crawler $node) use (&$ads) {
+
+            $ad = new \stdClass();
+
+            // ad_id
+            $link = $node->filter('a')->first();
+            $url = parse_url($link->attr('href'));
+            parse_str($url['query'], $params);
+            $ad->ad_id = intval($params['id']);
+
+            // daft_url; in daft short format --> http://daft.ie/7 + ad_id
+            $ad->daft_url = "http://daft.ie/7$ad->ad_id";
+
+            // property_type
+            $prop_type = $node->filter('h3')->first();
+
+            // some of this fields are not present in all the overseas ads
+            if ($prop_type->count() > 0) {
+                $prop_type = explode(',', trim($prop_type->text()));
+
+                if (count($prop_type) > 3) {
+                    $ad->property_type = trim($prop_type[2]);
+                }
+
+                // bedrooms
+                $bedrooms = explode(' ', $prop_type[0]);
+                $ad->bedrooms = intval($bedrooms[0]);
+
+                // bathrooms
+                $bathrooms = explode(' ', $prop_type[1]);
+                $ad->bathrooms = intval($bathrooms[0]);
+            }
+
+            // price
+            $price = trim($node->filter('h2')->first()->text());
+            $ad->display_price = $price;
+
+            // address
+            $address = trim($node->filter('div.listing_address h1')->text());
+            $ad->address = $address;
+
+            // short description
+            $description = trim($node->filter('div.listing_description p')->text());
+            $ad->description = $description;
+
+            // image
+            $image = $node->filter('a img.listing_thumbnail')->attr('src');
+            $ad->thumbnail_url = $image;
+
+            // adding item to array of results
+            array_push($ads, $ad);
         });
+
+        $answer->results->ads = $ads;
 
         return $answer;
     }
@@ -117,19 +171,33 @@ class DaftOverseas implements DaftOverseasInterface
         return $url;
     }
 
-    private function getPaginationInfo($info_string)
+    private function getPaginationInfo(Crawler $info)
     {
-        $aux = explode(PHP_EOL, $info_string);
-        $info = array_pop($aux);
-        $info = explode(' ', $info);
-
         $result = new \stdClass();
-        $result->total_results = intval($info[4]);
-        $result->results_per_page = intval($info[2]) - intval($info[0]) + 1; // (last item - first) + 1 => Items 21 -> 40 => 40-21+1 = 20 items.
-        $result->num_pages = intval(ceil($result->total_results / $result->results_per_page));
-        $result->first_on_page = intval($info[0]);
-        $result->last_on_page = intval($info[2]);
-        $result->current_page = intval(ceil($result->first_on_page / $result->results_per_page));
+
+        switch ($info->count()) {
+            case 0 : // no results
+                $result->total_results = 0;
+                $result->results_per_page = 10; // (last item - first) + 1 => Items 21 -> 40 => 40-21+1 = 20 items.
+                $result->num_pages = 0;
+                $result->first_on_page = 0;
+                $result->last_on_page = 0;
+                $result->current_page = 0;
+                break;
+
+            case 1 :
+                $aux = explode(PHP_EOL, $info->text());
+                $info = array_pop($aux);
+                $info = explode(' ', $info);
+
+                $result->total_results = intval($info[4]);
+                $result->results_per_page = intval($info[2]) - intval($info[0]) + 1; // (last item - first) + 1 => Items 21 -> 40 => 40-21+1 = 20 items.
+                $result->num_pages = intval(ceil($result->total_results / $result->results_per_page));
+                $result->first_on_page = intval($info[0]);
+                $result->last_on_page = intval($info[2]);
+                $result->current_page = intval(ceil($result->first_on_page / $result->results_per_page));
+                break;
+        }
 
         return $result;
     }

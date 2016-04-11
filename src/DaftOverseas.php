@@ -40,8 +40,6 @@ class DaftOverseas implements DaftOverseasInterface
     const VENEZUELA          = 130;
     const WALES              = 192;
 
-    const EURO_SYMBOL = "\xE2\x82\xAc"; // avoid weird issue with € character
-
     protected $key;
     protected $query;
     protected $client;

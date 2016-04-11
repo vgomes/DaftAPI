@@ -43,24 +43,41 @@ class DaftOverseas implements DaftOverseasInterface
     protected $key;
     protected $query;
     protected $client;
+    protected $params;
 
     function __construct($key)
     {
         $this->key = $key;
         $this->client = new Client();
+        $this->params = [
+            'country'   => '',
+            'max_price' => '',
+            'min_price' => '',
+            'sort_by'   => 'date',
+            'sort_type' => 'd',
+            'offset'    => 0,
+            'limit'     => 20
+        ];
     }
 
     function properties(array $params = null)
     {
         $this->query = $this->prepareQuery($params);
-        /** @var Crawler $crawler */
         $crawler = $this->client->request('GET', $this->query);
+
+        $info = $crawler->filter('div#listings_summary')->text();
+
+        $answer = new \stdClass();
+        $answer->results = new \stdClass();
+        $answer->results->pagination = $this->getPaginationInfo($info);
 
         $crawler->filter('div.listing')->each(function (Crawler $node) {
             $node->filter('h1')->each(function (Crawler $node) {
-                var_dump($node->text());
+//                var_dump(trim($node->text()));
             });
         });
+
+        return $answer;
     }
 
     function property($id)
@@ -75,21 +92,11 @@ class DaftOverseas implements DaftOverseasInterface
 
     protected function prepareQuery(array $params = null)
     {
-        $default = [
-            'country'   => '',
-            'max_price' => '',
-            'min_price' => '',
-            'sort_by'   => 'date',
-            'sort_type' => 'd',
-            'offset'    => 0,
-            'limit'     => 30
-        ];
-
         if (is_null($params)) {
             $params = [];
         }
 
-        $params = array_merge($default, $params);
+        $params = array_merge($this->params, $params);
 
         $query = [
             's'      => [
@@ -106,6 +113,24 @@ class DaftOverseas implements DaftOverseasInterface
         ];
 
         $url = 'http://agent.daft.ie/search.daft?' . http_build_query($query);
+
         return $url;
+    }
+
+    private function getPaginationInfo($info_string)
+    {
+        $aux = explode(PHP_EOL, $info_string);
+        $info = array_pop($aux);
+        $info = explode(' ', $info);
+
+        $result = new \stdClass();
+        $result->total_results = intval($info[4]);
+        $result->results_per_page = intval($info[2]) - intval($info[0]) + 1; // (last item - first) + 1 => Items 21 -> 40 => 40-21+1 = 20 items.
+        $result->num_pages = intval(ceil($result->total_results / $result->results_per_page));
+        $result->first_on_page = intval($info[0]);
+        $result->last_on_page = intval($info[2]);
+        $result->current_page = intval(ceil($result->first_on_page / $result->results_per_page));
+
+        return $result;
     }
 }

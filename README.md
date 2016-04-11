@@ -10,6 +10,8 @@ Via Composer
 $ composer require vgomes/daftapi
 ```
 
+You'll need also PHP [SOAP extension](http://php.net/manual/en/book.soap.php) installed and configured in your server.
+
 ## Usage
 
 In order to use this, you'll need a Daft api key. Get in touch with them in order to get one.

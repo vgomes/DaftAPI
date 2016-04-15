@@ -25,7 +25,7 @@ By default, Daft API doesn't cover overseas properties, so that functionality is
 
 ``` php
 $overseas = new DaftOverseas('_your_overseas_key_');
-$properties = $overseas->->properties([
+$properties = $overseas->properties([
 	'country' 	=> DaftOverseas::SPAIN,
 	'max_price'	=> 500000, 
 	'limit' 	=> 5

@@ -21,6 +21,22 @@ $api = new DaftAPI('your_api_key_here');
 $propsForSale = $api->sale();
 ```
 
+By default, Daft API doesn't cover overseas properties, so that functionality is achieved through some HTML parsing. Support is added to use in a similar way to the API.
+
+``` php
+$overseas = new DaftOverseas('_your_overseas_key_');
+$properties = $overseas->->properties([
+	'country' 	=> DaftOverseas::SPAIN,
+	'max_price'	=> 500000, 
+	'limit' 	=> 5
+])); // 5 properties on Spain with price under 500k
+
+$property = $overseas->property(_your_property_id_);
+```
+
+Provided methods to get a list of properties, information about a particular property and get the pictures for a particular ad. I couldn't fnid information on more specific params to refine searches appart of the included ones. So feel free to contact me to add support for more if you have information about them.
+
+
 ## Documentation
 
 Check oficial [Daft.ie API docs](http://api.daft.ie/doc/v3) to get information on what parameters you can use on requests and the type of results you can get.

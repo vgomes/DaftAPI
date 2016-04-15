@@ -5,6 +5,11 @@ namespace vgomes\daftapi;
 use Goutte\Client;
 use Symfony\Component\DomCrawler\Crawler;
 
+/**
+ * Basic support for daft overseas properties until supported by Daft.ie API 
+ * Class DaftOverseas
+ * @package vgomes\daftapi
+ */
 class DaftOverseas implements DaftOverseasInterface
 {
     const BULGARIA           = 6;
@@ -60,11 +65,16 @@ class DaftOverseas implements DaftOverseasInterface
         ];
     }
 
+    /**
+     * Returns a list of properties matching the provided parameters
+     * @param array|null $params
+     * @return \stdClass
+     */
     function properties(array $params = null)
     {
         $this->query = $this->prepareQuery($params);
         $crawler = $this->client->request('GET', $this->query);
-var_dump($this->query);
+
         $info = $crawler->filter('div#listings_summary');
 
         $answer = new \stdClass();
@@ -132,6 +142,12 @@ var_dump($this->query);
         return $answer;
     }
 
+    /**
+     * Returns information about the property with the given $id
+     * @param $id
+     * @param bool $withImages
+     * @return \stdClass
+     */
     function property($id, $withImages = false)
     {
         $url = "http://agent.daft.ie/searchinternational_sale.daft?id=$id&key=$this->key";
@@ -217,6 +233,11 @@ var_dump($this->query);
         return $result;
     }
 
+    /**
+     * Returns images for a particular ad. Poor performance (avoid if number of images is big)
+     * @param $id
+     * @return array
+     */
     function media($id)
     {
         // shitty implementation. It's the best I could think with daft.ie current limitations.

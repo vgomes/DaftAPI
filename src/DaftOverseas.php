@@ -64,7 +64,7 @@ class DaftOverseas implements DaftOverseasInterface
     {
         $this->query = $this->prepareQuery($params);
         $crawler = $this->client->request('GET', $this->query);
-
+var_dump($this->query);
         $info = $crawler->filter('div#listings_summary');
 
         $answer = new \stdClass();
@@ -72,7 +72,7 @@ class DaftOverseas implements DaftOverseasInterface
         $answer->results->pagination = $this->getPaginationInfo($info);
 
         $ads = [];
-        var_dump($this->query);
+
         // get list of ads
         $crawler->filter('div.listing')->each(function (Crawler $node) use (&$ads) {
 
@@ -132,14 +132,120 @@ class DaftOverseas implements DaftOverseasInterface
         return $answer;
     }
 
-    function property($id)
+    function property($id, $withImages = false)
     {
-        // TODO: Implement property() method.
+        $url = "http://agent.daft.ie/searchinternational_sale.daft?id=$id&key=$this->key";
+        $crawler = $this->client->request('GET', $url);
+
+        $result = new \stdClass();
+        $result->ad_id = $id;
+        $result->daft_url = "http://daft.ie/7$id";
+
+        $address = trim($crawler->filter('div#property h1')->first()->text());
+        $result->address = $address;
+
+        $price = trim($crawler->filter('div#property h2')->first()->text());
+        $result->price = $price;
+
+        $info = $crawler->filter('div#property_summary')->first()->html();
+
+        $info = explode('<br>', $info);
+        $info = $info[1];
+        $info = explode(',', $info);
+
+        switch (count($info)) {
+            case 1 :
+                $bedrooms = explode(' ', trim($info[0]));
+                $bedrooms = intval($bedrooms[0]);
+
+                $result->bedrooms = $bedrooms;
+                break;
+            case 2 :
+                $bedrooms = explode(' ', trim($info[0]));
+                $bedrooms = intval($bedrooms[0]);
+
+                $bathrooms = explode(' ', trim($info[1]));
+                $bathrooms = intval($bathrooms[0]);
+
+                $result->bedrooms = $bedrooms;
+                $result->bathrooms = $bathrooms;
+                break;
+            case 3 :
+                $bedrooms = explode(' ', trim($info[0]));
+                $bedrooms = intval($bedrooms[0]);
+
+                $bathrooms = explode(' ', trim($info[1]));
+                $bathrooms = intval($bathrooms[0]);
+
+                $result->bedrooms = $bedrooms;
+                $result->bathrooms = $bathrooms;
+                $result->property_type = trim($info[2]);
+                break;
+        }
+
+        $crawler->filter('div#property_summary p')->each(function (Crawler $node) use ($result) {
+            switch (true) {
+                case (str_contains($node->text(), 'Contact Name')) :
+                    $info = explode('<br>', trim($node->html()));
+                    $agent = trim($info[0]);
+                    $agent = explode("\n", $agent);
+                    $agent = trim($agent[1]);
+
+                    $phone = trim($info[1]);
+                    $phone = explode("\n", $phone);
+                    $phone = trim($phone[1]);
+
+                    $result->agent = $agent;
+                    $result->phone = $phone;
+                    break;
+                case (str_contains($node->text(), 'Agent')) :
+                    $agency = explode("\n", $node->text());
+                    $agency = trim(end($agency));
+                    $result->agency = $agency;
+                    break;
+            }
+        });
+
+        $description = $crawler->filter('div#property_description')->first()->text();
+        $description = trim(str_replace("Property Description\n", "", $description));
+        $result->description = $description;
+
+        if ($withImages) {
+            $result->media = $this->media($id);
+        }
+
+        return $result;
     }
 
     function media($id)
     {
-        // TODO: Implement media() method.
+        // shitty implementation. It's the best I could think with daft.ie current limitations.
+
+        $index = 1;
+        $total = 1;
+
+        $imgs = [];
+
+        do {
+            $url = "http://agent.daft.ie/imagebrowser.daft?key=$this->key&id=$id&type=international_sale&index=$index";
+            $crawler = $this->client->request('GET', $url);
+
+            $info = $crawler->filter('span#photo_num_pages')->text();
+
+            $info = explode(' ', $info);
+            $info = end($info);
+            $info = str_replace(']', '', $info);
+            $total = intval($info);
+
+            $img = $crawler->filter('img')->first()->attr('src');
+
+            array_push($imgs, $img);
+
+            $index += 1;
+
+        } while ($index <= $total);
+
+        return $imgs;
     }
 
     protected function prepareQuery(array $params = null)

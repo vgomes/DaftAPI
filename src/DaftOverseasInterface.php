@@ -6,7 +6,7 @@ interface DaftOverseasInterface
 {
     function properties(array $params = null);
 
-    function property($id);
+    function property($id, $withImages = false);
 
     function media($id);
 }
